@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock, Paper, Scissors, Lizard, Spock</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 30px;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .choice {
+            width: 120px;
+            height: 120px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .choice:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .choice img {
+            width: 70px;
+            height: 70px;
+        }
+
+        .result {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ffdd57;
+        }
+
+        .reset {
+            padding: 15px 30px;
+            background: #ff4b2b;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .reset:hover {
+            background: #e84118;
+            transform: scale(1.05);
+        }
+
+        .game-log {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            color: #fff;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+
+            .choice {
+                width: 90px;
+                height: 90px;
+            }
+
+            .choice img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .result {
+                font-size: 20px;
+            }
+
+            .reset {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rock, Paper, Scissors, Lizard, Spock</h1>
+        <div class="scoreboard">
+            <span id="player-score">Player: 0</span>
+            <span id="computer-score">Computer: 0</span>
+        </div>
+        <div class="choices">
+            <div class="choice" id="rock">
+                <img src="https://img.icons8.com/ios-filled/100/rock.png" alt="Rock">
+            </div>
+            <div class="choice" id="paper">
+                <img src="https://img.icons8.com/ios-filled/100/paper.png" alt="Paper">
+            </div>
+            <div class="choice" id="scissors">
+                <img src="https://img.icons8.com/ios-filled/100/scissors.png" alt="Scissors">
+            </div>
+            <div class="choice" id="lizard">
+                <img src="https://img.icons8.com/ios-filled/100/lizard.png" alt="Lizard">
+            </div>
+            <div class="choice" id="spock">
+                <img src="" alt="Spock">
+            </div>
+        </div>
+        <div class="result" id="result">Choose your move!</div>
+        <button class="reset" id="reset">Reset Game</button>
+        <div class="game-log" id="game-log"></div>
+    </div>
+
+    <script>
+        const playerScoreEl = document.getElementById('player-score');
+        const computerScoreEl = document.getElementById('computer-score');
+        const resultEl = document.getElementById('result');
+        const gameLogEl = document.getElementById('game-log');
+        const resetButton = document.getElementById('reset');
+        const choices = document.querySelectorAll('.choice');
+
+        let playerScore = 0;
+        let computerScore = 0;
+
+        const rules = {
+            rock: ['scissors', 'lizard'],
+            paper: ['rock', 'spock'],
+            scissors: ['paper', 'lizard'],
+            lizard: ['spock', 'paper'],
+            spock: ['scissors', 'rock']
+        };
+
+        choices.forEach(choice => {
+            choice.addEventListener('click', () => {
+                const playerChoice = choice.id;
+                const computerChoice = getComputerChoice();
+                const result = determineWinner(playerChoice, computerChoice);
+
+                updateScores(result);
+                displayResult(playerChoice, computerChoice, result);
+                logRound(playerChoice, computerChoice, result);
+            });
+        });
+
+        resetButton.addEventListener('click', resetGame);
+
+        function getComputerChoice() {
+            const options = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
+            return options[Math.floor(Math.random() * options.length)];
+        }
+
+        function determineWinner(player, computer) {
+            if (player === computer) {
+                return 'tie';
+            }
+            if (rules[player].includes(computer)) {
+                return 'win';
+            }
+            return 'lose';
+        }
+
+        function updateScores(result) {
+            if (result === 'win') {
+                playerScore++;
+                playerScoreEl.textContent = `Player: ${playerScore}`;
+            } else if (result === 'lose') {
+                computerScore++;
+                computerScoreEl.textContent = `Computer: ${computerScore}`;
+            }
+        }
+
+        function displayResult(playerChoice, computerChoice, result) {
+            const outcomes = {
+                win: 'You win!',
+                lose: 'You lose!',
+                tie: "It's a tie!"
+            };
+
+            resultEl.innerHTML = `You chose <strong>${playerChoice}</strong>, computer chose <strong>${computerChoice}</strong>. ${outcomes[result]}`;
+        }
+
+        function logRound(playerChoice, computerChoice, result) {
+            const outcomes = {
+                win: 'Win',
+                lose: 'Loss',
+                tie: 'Tie'
+            };
+
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `Round: Player chose ${playerChoice}, Computer chose ${computerChoice}. Result: ${outcomes[result]}`;
+            gameLogEl.appendChild(logEntry);
+
+            gameLogEl.scrollTop = gameLogEl.scrollHeight;
+        }
+
+        function resetGame() {
+            playerScore = 0;
+            computerScore = 0;
+            playerScoreEl.textContent = 'Player: 0';
+            computerScoreEl.textContent = 'Computer: 0';
+            resultEl.textContent = 'Choose your move!';
+            gameLogEl.innerHTML = '';
+        }
+    </script>
+</body>
+</html>
